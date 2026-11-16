@@ -1,0 +1,72 @@
+CAZADOR DE LA CRIPTA - Explicación de cómo se hizo la actividad
+Edwin Jesús Flete Cruz - 1-22-1805 - Programación de Video Juegos (INF-910-001)
+
+1. Idea del juego
+Elegí hacer el FPS con una ballesta en lugar de un arma de fuego, siguiendo la idea del ejemplo
+del arco con flechas. El tema es una cripta medieval: primero el cazador entrena en una galería
+de tiro, después baja a la mazmorra llena de esqueletos y al final pelea contra el Rey Esqueleto.
+Usé modelos gratuitos (licencia CC0) de KayKit porque todos comparten el mismo estilo low poly,
+así el juego se ve uniforme. Las imágenes de los personajes y enemigos se enviaron al grupo para
+su aprobación.
+
+2. Escenas
+- 00 Menu: menú de entrada con JUGAR, CONTROLES y SALIR.
+- 01 Galeria de disparos: la escena que pide la actividad, con 10 dianas.
+- 02 Mazmorra: el nivel con enemigos.
+- 03 Jefe: el nivel del boss.
+Al ganar o perder aparece un menú final con la puntuación, las vidas restantes y los botones
+"Volver a jugar" y "Menú principal".
+
+3. Jugador
+Uso un CharacterController. Se mueve con las flechas del teclado (también funciona W A S D),
+apunta con el ratón (el cursor queda bloqueado en el centro), corre con Shift y salta con Espacio.
+La cámara está dentro del jugador y lleva el arma. El arma tiene balanceo al caminar, inercia al
+girar y retroceso al disparar, hechos por código. Al principio puse unos brazos en primera persona
+(PSX First Person Arms), pero sus animaciones eran de puños y no servían para sostener la ballesta
+ni el báculo, así que se veían raros. Decidí quitarlos y dejar solo el arma en pantalla, como hacen
+muchos juegos de este estilo.
+
+4. Disparo y puntuación
+Hay tres armas que se cambian con 1 / 2 / 3 o la rueda del ratón. La ballesta (flechas con un poco
+de caída, daño 2) y el báculo mágico (orbes que van rectos y disparan más rápido, daño 1) gastan la
+misma munición. La espada es un arma cuerpo a cuerpo: no gasta munición, hace daño 3 y solo alcanza
+de cerca. Su tajo es una animación hecha por código y el golpe se detecta con una esfera corta
+(SphereCast) desde el centro de la cámara. Al hacer clic izquierdo, si queda munición y el arma está recargada, se crea el proyectil.
+La flecha sale hacia el punto exacto que marca la mira (se calcula con un rayo desde el centro de
+la cámara). Elegí mover la flecha por código con un poco de gravedad y lanzar un rayo (Raycast)
+en cada paso, en lugar de usar solo colisiones físicas, porque así nunca atraviesa objetos aunque
+vaya muy rápido y se sabe exactamente qué tocó.
+Para distinguir a qué le damos, cada objeto tiene un componente:
+- "Objetivo" (dianas, barriles, botellas) con su nombre y sus puntos. Cada tipo da distinto:
+  diana 10, diana lejana 15, diana de pared 15, diana pequeña 25, diana de pared pequeña 30,
+  diana móvil 50, botella 5 y barril -10 (penalización).
+- "EnemigoEsqueleto" con su vida y sus puntos (esbirro 50, pícaro 75, guerrero y mago 100,
+  Rey Esqueleto 1000).
+Cuando la flecha toca un Objetivo, se suman sus puntos y se destruyen tanto la diana como la
+flecha. Si toca una pared, se queda clavada unos segundos.
+Si el proyectil o la espada le dan a un esqueleto en la cabeza (la parte de arriba de su cuerpo), el daño es
+crítico: hace el doble y da 25 puntos extra.
+
+5. Munición, vidas y enemigos
+- Munición: cada nivel da un carcaj (15, 20 y 25 flechas) y en los niveles 2 y 3 se pueden
+  recoger carcajes con 5 flechas más. Si te quedas sin flechas antes de cumplir el objetivo, pierdes.
+  Las flechas que sobran al terminar un nivel dan 10 puntos cada una.
+- Vidas: empiezas con 3. Si un esqueleto te alcanza, pierdes una vida, la pantalla se pone roja y
+  sales empujado. Hay pociones que dan una vida extra. Con 0 vidas pierdes.
+- Enemigos: los esqueletos esperan hasta verte y luego te persiguen. Cada tipo tiene distinta
+  velocidad y vida. El jefe es un esqueleto guerrero gigante con 30 de vida, una luz roja y la
+  habilidad de llamar esbirros cada cierto tiempo. Su vida se ve en una barra arriba.
+
+6. Sonido
+La música (mazmorra y jefe) y los efectos (disparo, espada, recarga, impactos, dianas, daño, recoger,
+victoria y derrota) los generé por código con ondas y ruido, para no depender de sonidos con
+licencias dudosas.
+
+7. Cómo se arman las escenas
+Hice una herramienta para el editor (menú FPS > Construir todo) que configura los modelos, crea
+los materiales, los Animator Controllers y los prefabs, y construye las 4 escenas colocando el
+piso, los muros, las antorchas con luz, las dianas y los enemigos. Lo hice así para poder cambiar
+los niveles rápido y volver a generarlos sin errores.
+
+8. Publicación
+El proyecto está en GitHub y el juego se publicó en versión web (WebGL).
